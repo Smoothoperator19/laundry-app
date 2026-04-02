@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nazif — Saudi Laundry App | Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #f0ede6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Sans', sans-serif;
+      padding: 24px;
+    }
+
+    .app-shell {
+      background: #f5f0e8;
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      max-width: 860px;
+      width: 100%;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.18);
+    }
+
+    .phone-frame {
+      width: 320px;
+      min-width: 320px;
+      background: #1a1a1a;
+      border-radius: 36px;
+      padding: 12px;
+      margin: 24px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    }
+
+    .phone-notch {
+      width: 90px; height: 24px;
+      background: #1a1a1a;
+      border-radius: 0 0 14px 14px;
+      margin: 0 auto;
+      position: relative; z-index: 10;
+    }
+
+    .phone-screen {
+      background: #fff;
+      border-radius: 26px;
+      overflow: hidden;
+      height: 600px;
+      position: relative;
+    }
+
+    .screen { display: none; height: 100%; overflow-y: auto; }
+    .screen.active { display: block; }
+
+    /* scrollbar */
+    .screen::-webkit-scrollbar { width: 3px; }
+    .screen::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+
+    /* HOME */
+    .home-header { background: #1b4332; padding: 20px 18px 30px; color: #fff; }
+    .home-header .greeting { font-size: 11px; color: rgba(255,255,255,0.6); letter-spacing: 1.5px; text-transform: uppercase; }
+    .home-header h1 { font-family: 'Playfair Display', serif; font-size: 20px; margin-top: 2px; }
+    .home-header .location { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+
+    .promo-card {
+      background: #d4edda; border-radius: 14px;
+      margin: -14px 14px 0; padding: 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: relative; z-index: 2;
+    }
+    .promo-card .promo-text { font-size: 12px; font-weight: 600; color: #155724; line-height: 1.4; }
+    .promo-card .promo-badge { background: #1b4332; color: #fff; font-size: 10px; font-weight: 600; padding: 5px 11px; border-radius: 20px; }
+
+    .section-title { font-size: 12px; font-weight: 600; color: #222; padding: 14px 14px 7px; }
+
+    .services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; padding: 0 14px; }
+    .service-card { background: #f8f6f0; border-radius: 13px; padding: 13px; cursor: pointer; border: 1.5px solid transparent; transition: border-color 0.2s; }
+    .service-card:hover { border-color: #1b4332; }
+    .service-card .icon { font-size: 22px; margin-bottom: 5px; display: block; }
+    .service-card .name { font-size: 11px; font-weight: 600; color: #1a1a1a; }
+    .service-card .price { font-size: 10px; color: #1b4332; margin-top: 2px; }
+
+    .order-card { background: #1b4332; border-radius: 13px; margin: 11px 14px; padding: 13px; color: #fff; display: flex; align-items: center; gap: 11px; cursor: pointer; }
+    .order-dot { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .order-info .label { font-size: 9px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.8px; }
+    .order-info .status { font-size: 12px; font-weight: 600; margin-top: 1px; }
+    .order-info .eta { font-size: 10px; color: rgba(255,255,255,0.65); margin-top: 2px; }
+
+    /* BOOKING */
+    .booking-header { background: #1b4332; padding: 18px 14px; color: #fff; display: flex; align-items: center; gap: 10px; }
+    .back-btn { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; border: none; color: #fff; flex-shrink: 0; }
+    .booking-header h2 { font-family: 'Playfair Display', serif; font-size: 16px; }
+    .booking-content { padding: 14px; }
+
+    .service-selector { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; }
+    .service-chip { padding: 7px 13px; border-radius: 20px; font-size: 11px; font-weight: 500; white-space: nowrap; cursor: pointer; border: 1.5px solid #ddd; background: #fff; color: #555; transition: all 0.2s; }
+    .service-chip.active { background: #1b4332; border-color: #1b4332; color: #fff; }
+
+    .qty-row { display: flex; align-items: center; justify-content: space-between; background: #f8f6f0; border-radius: 11px; padding: 11px 13px; margin: 11px 0; }
+    .qty-info .item-name { font-size: 12px; font-weight: 600; color: #1a1a1a; }
+    .qty-info .item-price { font-size: 10px; color: #1b4332; margin-top: 2px; }
+    .qty-control { display: flex; align-items: center; gap: 9px; }
+    .qty-btn { width: 24px; height: 24px; border-radius: 50%; background: #1b4332; color: #fff; border: none; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; line-height: 1; }
+    .qty-num { font-size: 13px; font-weight: 600; min-width: 14px; text-align: center; }
+
+    .slot-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; margin-top: 7px; }
+    .slot { border: 1.5px solid #e0e0e0; border-radius: 7px; padding: 7px 3px; text-align: center; font-size: 10px; font-weight: 500; color: #444; cursor: pointer; transition: all 0.15s; }
+    .slot.active { border-color: #1b4332; background: #d4edda; color: #1b4332; }
+    .slot.disabled { color: #ccc; cursor: default; }
+
+    .cta-btn { background: #1b4332; color: #fff; border: none; border-radius: 13px; padding: 13px; width: 100%; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 14px; font-family: 'DM Sans', sans-serif; }
+    .cta-btn:hover { background: #163829; }
+
+    /* TRACKING */
+    .track-header { background: #1b4332; padding: 18px 14px; color: #fff; }
+    .track-header .small { font-size: 10px; color: rgba(255,255,255,0.6); }
+    .track-header h2 { font-family: 'Playfair Display', serif; font-size: 17px; margin-top: 2px; }
+    .tracker { padding: 18px 14px; }
+    .track-step { display: flex; gap: 11px; margin-bottom: 4px; }
+    .step-line-wrap { display: flex; flex-direction: column; align-items: center; width: 26px; flex-shrink: 0; }
+    .step-dot { width: 22px; height: 22px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #999; flex-shrink: 0; }
+    .step-dot.done { background: #1b4332; color: #fff; }
+    .step-dot.active { background: #28a745; color: #fff; box-shadow: 0 0 0 4px rgba(40,167,69,0.2); }
+    .step-connector { width: 2px; flex: 1; background: #e0e0e0; min-height: 26px; }
+    .step-connector.done { background: #1b4332; }
+    .step-content { padding-bottom: 22px; }
+    .step-content .step-title { font-size: 12px; font-weight: 600; color: #1a1a1a; margin-top: 2px; }
+    .step-content .step-desc { font-size: 10px; color: #888; margin-top: 2px; }
+    .step-content .step-time { font-size: 9px; color: #28a745; margin-top: 2px; font-weight: 600; }
+
+    .delivery-card { background: #eaf4ee; border-radius: 13px; margin: 0 14px 14px; padding: 13px; display: flex; align-items: center; gap: 11px; }
+    .driver-avatar { width: 40px; height: 40px; border-radius: 50%; background: #1b4332; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 15px; flex-shrink: 0; }
+    .driver-info .dname { font-size: 12px; font-weight: 600; }
+    .driver-info .drole { font-size: 10px; color: #666; }
+    .call-btn { margin-left: auto; background: #1b4332; color: #fff; border: none; border-radius: 50%; width: 34px; height: 34px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+
+    /* PROFILE */
+    .profile-header { background: #1b4332; padding: 22px 14px 36px; text-align: center; color: #fff; }
+    .avatar-big { width: 58px; height: 58px; border-radius: 50%; background: rgba(255,255,255,0.2); margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .profile-name { font-family: 'Playfair Display', serif; font-size: 17px; }
+    .profile-sub { font-size: 10px; color: rgba(255,255,255,0.55); margin-top: 3px; }
+
+    .stats-row { display: flex; margin: -16px 14px 0; background: #fff; border-radius: 13px; padding: 13px; position: relative; z-index: 2; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .stat-item { flex: 1; text-align: center; border-right: 1px solid #f0f0f0; }
+    .stat-item:last-child { border-right: none; }
+    .stat-item .val { font-size: 16px; font-weight: 700; color: #1b4332; }
+    .stat-item .lab { font-size: 9px; color: #888; margin-top: 2px; }
+
+    .menu-list { padding: 14px; margin-top: 8px; }
+    .menu-item { display: flex; align-items: center; gap: 11px; padding: 11px 0; border-bottom: 1px solid #f5f5f5; cursor: pointer; }
+    .menu-item .m-icon { width: 34px; height: 34px; border-radius: 9px; background: #eaf4ee; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .menu-item .m-label { font-size: 12px; font-weight: 500; color: #1a1a1a; flex: 1; }
+    .menu-item .m-arrow { font-size: 11px; color: #ccc; }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #f0f0f0; display: flex; padding: 7px 0 10px; }
+    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 3px 0; }
+    .nav-icon { font-size: 18px; line-height: 1; }
+    .nav-label { font-size: 9px; color: #aaa; font-weight: 500; }
+    .nav-item.active .nav-label { color: #1b4332; font-weight: 600; }
+
+    /* RIGHT PANEL */
+    .info-panel { flex: 1; padding: 28px 24px; display: flex; flex-direction: column; gap: 18px; }
+    .info-panel .brand { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; color: #1b2e1e; line-height: 1.2; }
+    .info-panel .tagline { font-size: 12px; color: #555; line-height: 1.6; }
+    .feature-list { display: flex; flex-direction: column; gap: 9px; }
+    .feature-item { display: flex; align-items: flex-start; gap: 10px; background: rgba(255,255,255,0.75); border-radius: 11px; padding: 11px; }
+    .feat-icon { width: 34px; height: 34px; border-radius: 9px; background: #1b4332; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .feat-text .feat-title { font-size: 12px; font-weight: 600; color: #1a1a1a; }
+    .feat-text .feat-desc { font-size: 10px; color: #666; margin-top: 2px; line-height: 1.4; }
+
+    .nav-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .nav-tab { padding: 6px 13px; border-radius: 20px; font-size: 11px; font-weight: 500; cursor: pointer; border: 1.5px solid #1b4332; background: transparent; color: #1b4332; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .nav-tab.active { background: #1b4332; color: #fff; }
+    .nav-tab:hover { background: #1b4332; color: #fff; }
+
+    .badge { display: inline-block; background: #d4edda; color: #1b4332; font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px; }
+
+    .footer-note { font-size: 10px; color: #aaa; margin-top: auto; }
+
+    @media (max-width: 680px) {
+      .app-shell { flex-direction: column; align-items: center; }
+      .info-panel { padding: 20px; }
+      .phone-frame { margin: 20px 20px 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+
+      <!-- HOME -->
+      <div class="screen active" id="screen-home">
+        <div class="home-header">
+          <div class="greeting">مرحباً — Good Morning</div>
+          <h1>Abdullah Al-Rashidi 👋</h1>
+          <div class="location">📍 Al Olaya District, Riyadh</div>
+        </div>
+        <div class="promo-card">
+          <div class="promo-text">First order?<br>Get 20% off! 🎉</div>
+          <div class="promo-badge">USE: NAZIF20</div>
+        </div>
+        <div class="section-title">خدماتنا — Our Services</div>
+        <div class="services-grid">
+          <div class="service-card" onclick="switchScreen('booking')">
+            <span class="icon">👕</span>
+            <div class="name">Wash & Fold</div>
+            <div class="price">SAR 12/kg</div>
+          </div>
+          <div class="service-card" onclick="switchScreen('booking')">
+            <span class="icon">👔</span>
+            <div class="name">Dry Clean</div>
+            <div class="price">From SAR 25</div>
+          </div>
+          <div class="service-card" onclick="switchScreen('booking')">
+            <span class="icon">🧕</span>
+            <div class="name">Abaya / Thobe</div>
+            <div class="price">SAR 30/piece</div>
+          </div>
+          <div class="service-card" onclick="switchScreen('booking')">
+            <span class="icon">🛏️</span>
+            <div class="name">Bedsheets</div>
+            <div class="price">SAR 35/set</div>
+          </div>
+        </div>
+        <div class="order-card" onclick="switchScreen('tracking')">
+          <div class="order-dot">🚚</div>
+          <div class="order-info">
+            <div class="label">Active Order</div>
+            <div class="status">Your clothes are being washed</div>
+            <div class="eta">Est. delivery: 4:30 PM today</div>
+          </div>
+          <div style="margin-left:auto;font-size:13px;color:rgba(255,255,255,0.5);">›</div>
+        </div>
+        <div style="height:60px;"></div>
+        <div class="bottom-nav">
+          <div class="nav-item active" onclick="switchScreen('home')"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+          <div class="nav-item" onclick="switchScreen('booking')"><div class="nav-icon">📦</div><div class="nav-label">Book</div></div>
+          <div class="nav-item" onclick="switchScreen('tracking')"><div class="nav-icon">📍</div><div class="nav-label">Track</div></div>
+          <div class="nav-item" onclick="switchScreen('profile')"><div class="nav-icon">👤</div><div class="nav-label">Profile</div></div>
+        </div>
+      </div>
+
+      <!-- BOOKING -->
+      <div class="screen" id="screen-booking">
+        <div class="booking-header">
+          <button class="back-btn" onclick="switchScreen('home')">‹</button>
+          <h2>Book Pickup — احجز استلام</h2>
+        </div>
+        <div class="booking-content">
+          <div style="font-size:11px;color:#888;margin-bottom:7px;font-weight:500;">SELECT SERVICE</div>
+          <div class="service-selector">
+            <div class="service-chip active">Wash & Fold</div>
+            <div class="service-chip">Dry Clean</div>
+            <div class="service-chip">Abaya / Thobe</div>
+            <div class="service-chip">Bedsheets</div>
+          </div>
+          <div style="margin-top:13px;font-size:11px;color:#888;font-weight:500;">ITEMS</div>
+          <div class="qty-row">
+            <div class="qty-info">
+              <div class="item-name">Regular Clothes</div>
+              <div class="item-price">SAR 12/kg · est. 2kg</div>
+            </div>
+            <div class="qty-control">
+              <button class="qty-btn">−</button>
+              <span class="qty-num">2</span>
+              <button class="qty-btn">+</button>
+            </div>
+          </div>
+          <div class="qty-row">
+            <div class="qty-info">
+              <div class="item-name">Thobe (Traditional)</div>
+              <div class="item-price">SAR 20/piece</div>
+            </div>
+            <div class="qty-control">
+              <button class="qty-btn">−</button>
+              <span class="qty-num">2</span>
+              <button class="qty-btn">+</button>
+            </div>
+          </div>
+          <div style="font-size:11px;color:#888;margin-top:13px;font-weight:500;">PICKUP SLOT — TODAY</div>
+          <div class="slot-grid">
+            <div class="slot disabled">9–11 AM</div>
+            <div class="slot disabled">11–1 PM</div>
+            <div class="slot active">2–4 PM</div>
+            <div class="slot">4–6 PM</div>
+            <div class="slot">6–8 PM</div>
+            <div class="slot">Tomorrow</div>
+          </div>
+          <div style="background:#f8f6f0;border-radius:11px;padding:11px;margin-top:13px;">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#888;"><span>Wash & Fold (2kg)</span><span>SAR 24</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#888;margin-top:4px;"><span>Thobe x2</span><span>SAR 40</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#888;margin-top:4px;"><span>Pickup & Delivery</span><span style="color:#1b4332;">FREE</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#888;margin-top:4px;"><span>VAT (15%)</span><span>SAR 9.60</span></div>
+            <div style="border-top:1px solid #e8e8e8;margin-top:7px;padding-top:7px;display:flex;justify-content:space-between;font-size:13px;font-weight:700;"><span>Total (incl. VAT)</span><span style="color:#1b4332;">SAR 73.60</span></div>
+          </div>
+          <button class="cta-btn" onclick="switchScreen('tracking')">Confirm Pickup — 2 to 4 PM ›</button>
+        </div>
+        <div style="height:10px;"></div>
+      </div>
+
+      <!-- TRACKING -->
+      <div class="screen" id="screen-tracking">
+        <div class="track-header">
+          <div class="small">ORDER #NZF-4821 · Riyadh</div>
+          <h2>Live Tracking — تتبع مباشر</h2>
+          <div style="font-size:10px;color:rgba(255,255,255,0.55);margin-top:3px;">Placed today · SAR 73.60</div>
+        </div>
+        <div class="tracker">
+          <div class="track-step">
+            <div class="step-line-wrap"><div class="step-dot done">✓</div><div class="step-connector done"></div></div>
+            <div class="step-content"><div class="step-title">Order Confirmed</div><div class="step-desc">Pickup scheduled successfully</div><div class="step-time">10:30 AM · Done</div></div>
+          </div>
+          <div class="track-step">
+            <div class="step-line-wrap"><div class="step-dot done">✓</div><div class="step-connector done"></div></div>
+            <div class="step-content"><div class="step-title">Clothes Picked Up</div><div class="step-desc">Rider collected from Al Olaya</div><div class="step-time">2:15 PM · Done</div></div>
+          </div>
+          <div class="track-step">
+            <div class="step-line-wrap"><div class="step-dot active">⟳</div><div class="step-connector"></div></div>
+            <div class="step-content"><div class="step-title">Being Washed</div><div class="step-desc">At our Riyadh facility</div><div class="step-time">In progress...</div></div>
+          </div>
+          <div class="track-step">
+            <div class="step-line-wrap"><div class="step-dot">4</div><div class="step-connector"></div></div>
+            <div class="step-content"><div class="step-title">Quality Check</div><div class="step-desc">Inspected before delivery</div></div>
+          </div>
+          <div class="track-step">
+            <div class="step-line-wrap"><div class="step-dot">5</div></div>
+            <div class="step-content"><div class="step-title">Delivered</div><div class="step-desc">Est. 4:30 PM today</div></div>
+          </div>
+        </div>
+        <div class="delivery-card">
+          <div class="driver-avatar">🙋</div>
+          <div class="driver-info"><div class="dname">Faisal — Delivery Agent</div><div class="drole">On his way to you</div></div>
+          <button class="call-btn">📞</button>
+        </div>
+        <div style="height:60px;"></div>
+        <div class="bottom-nav">
+          <div class="nav-item" onclick="switchScreen('home')"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+          <div class="nav-item" onclick="switchScreen('booking')"><div class="nav-icon">📦</div><div class="nav-label">Book</div></div>
+          <div class="nav-item active"><div class="nav-icon">📍</div><div class="nav-label">Track</div></div>
+          <div class="nav-item" onclick="switchScreen('profile')"><div class="nav-icon">👤</div><div class="nav-label">Profile</div></div>
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="screen" id="screen-profile">
+        <div class="profile-header">
+          <div class="avatar-big">👤</div>
+          <div class="profile-name">Abdullah Al-Rashidi</div>
+          <div class="profile-sub">عبدالله الراشدي · Riyadh, KSA</div>
+          <div class="profile-sub">+966 50 123 4567</div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-item"><div class="val">18</div><div class="lab">Orders</div></div>
+          <div class="stat-item"><div class="val">SAR 920</div><div class="lab">Spent</div></div>
+          <div class="stat-item"><div class="val">⭐ 4.9</div><div class="lab">Rating</div></div>
+        </div>
+        <div class="menu-list">
+          <div class="menu-item"><div class="m-icon">📋</div><div class="m-label">Order History — سجل الطلبات</div><div class="m-arrow">›</div></div>
+          <div class="menu-item"><div class="m-icon">📍</div><div class="m-label">Saved Addresses</div><div class="m-arrow">›</div></div>
+          <div class="menu-item"><div class="m-icon">💳</div><div class="m-label">Pay via Mada / Apple Pay</div><div class="m-arrow">›</div></div>
+          <div class="menu-item"><div class="m-icon">🎁</div><div class="m-label">Referral & Rewards</div><div class="m-arrow">›</div></div>
+          <div class="menu-item"><div class="m-icon">🔔</div><div class="m-label">Notifications</div><div class="m-arrow">›</div></div>
+          <div class="menu-item" style="border-bottom:none;"><div class="m-icon" style="background:#fff0f0;">🚪</div><div class="m-label" style="color:#c0392b;">Log Out</div></div>
+        </div>
+        <div style="height:60px;"></div>
+        <div class="bottom-nav">
+          <div class="nav-item" onclick="switchScreen('home')"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+          <div class="nav-item" onclick="switchScreen('booking')"><div class="nav-icon">📦</div><div class="nav-label">Book</div></div>
+          <div class="nav-item" onclick="switchScreen('tracking')"><div class="nav-icon">📍</div><div class="nav-label">Track</div></div>
+          <div class="nav-item active"><div class="nav-icon">👤</div><div class="nav-label">Profile</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="info-panel">
+    <div>
+      <div class="badge">🇸🇦 SAUDI EDITION — PORTFOLIO DEMO</div>
+      <div class="brand" style="margin-top:10px;">نظيف<br><span style="font-size:18px;">Nazif Laundry App</span></div>
+      <div class="tagline" style="margin-top:8px;">On-demand laundry & dry cleaning app built for the Saudi market — Abaya/Thobe support, SAR pricing, VAT billing, and Mada/Apple Pay.</div>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:600;color:#888;letter-spacing:1px;margin-bottom:9px;">EXPLORE SCREENS</div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="tabSwitch(this,'home')">🏠 Home</button>
+        <button class="nav-tab" onclick="tabSwitch(this,'booking')">📦 Booking</button>
+        <button class="nav-tab" onclick="tabSwitch(this,'tracking')">📍 Tracking</button>
+        <button class="nav-tab" onclick="tabSwitch(this,'profile')">👤 Profile</button>
+      </div>
+    </div>
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feat-icon">🧕</div>
+        <div class="feat-text">
+          <div class="feat-title">Abaya & Thobe Service</div>
+          <div class="feat-desc">Specialized care for traditional Saudi garments.</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feat-icon">💳</div>
+        <div class="feat-text">
+          <div class="feat-title">Mada & Apple Pay</div>
+          <div class="feat-desc">Saudi-local payments with VAT-compliant invoicing (15%).</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feat-icon">📍</div>
+        <div class="feat-text">
+          <div class="feat-title">Riyadh-Wide Pickup</div>
+          <div class="feat-desc">Same-day pickup across all Riyadh districts.</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-note">نظيف means "Clean" in Arabic · Interactive portfolio prototype</div>
+  </div>
+</div>
+
+<script>
+  function switchScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.querySelectorAll('.nav-tab').forEach(t => {
+      t.classList.toggle('active', t.getAttribute('onclick') && t.getAttribute('onclick').includes("'" + name + "'"));
+    });
+    document.querySelectorAll('.bottom-nav').forEach(nav => {
+      nav.querySelectorAll('.nav-item').forEach(item => {
+        const fn = item.getAttribute('onclick');
+        item.classList.toggle('active', fn && fn.includes("'" + name + "'"));
+      });
+    });
+  }
+
+  function tabSwitch(el, name) {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    switchScreen(name);
+  }
+
+  document.querySelectorAll('.service-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      this.closest('.service-selector').querySelectorAll('.service-chip').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.slot').forEach(slot => {
+    slot.addEventListener('click', function() {
+      if (this.classList.contains('disabled')) return;
+      this.closest('.slot-grid').querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
